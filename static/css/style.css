@@ -225,13 +225,10 @@ a { color: inherit; text-decoration: none; }
     border: none;
     transition: background 0.2s;
     text-decoration: none;
-    background: var(--ink-muted);
-    color: var(--paper);
 }
 
 .btn-secondary:hover {
-    background: var(--ink);
-    color: var(--paper);
+    background: var(--accent);
 }
 
 .btn-primary {
