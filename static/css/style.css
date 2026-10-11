@@ -478,6 +478,77 @@ a { color: inherit; text-decoration: none; }
 .auth-switch a:hover { text-decoration: underline; }
 
 /* ------------------------------------------------------------------ */
+/* Terms / Legal Pages                                                 */
+/* ------------------------------------------------------------------ */
+
+.terms-section {
+    padding: 4rem 2rem;
+    display: flex;
+    justify-content: center;
+}
+
+.terms-container {
+    width: 100%;
+    max-width: 800px;
+}
+
+.terms-header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+}
+
+.terms-badge {
+    display: inline-block;
+    background: var(--accent-light);
+    color: var(--accent);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.35rem 0.85rem;
+    border-radius: 999px;
+    margin-bottom: 1rem;
+}
+
+.terms-title {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 4vw, 3rem);
+    color: var(--ink);
+    margin-bottom: 0.5rem;
+}
+
+.terms-subtitle {
+    font-size: 0.9rem;
+    color: var(--ink-muted);
+}
+
+.terms-card {
+    background: var(--paper-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 2.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+}
+
+.terms-group h2 {
+    font-family: var(--font-display);
+    font-size: 1.35rem;
+    color: var(--ink);
+    margin-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border-soft);
+    padding-bottom: 0.5rem;
+}
+
+.terms-group p {
+    font-size: 0.95rem;
+    color: var(--ink-soft);
+    line-height: 1.7;
+}
+
+/* ------------------------------------------------------------------ */
 /* Footer                                                              */
 /* ------------------------------------------------------------------ */
 
