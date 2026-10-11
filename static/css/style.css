@@ -124,13 +124,14 @@ a { color: inherit; text-decoration: none; }
 /* ------------------------------------------------------------------ */
 
 .hero {
-    padding: 5rem 2rem 4rem;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 4rem;
+    padding: 4rem 2rem 5rem;
+    display: flex;
+    flex-direction: column;
     align-items: center;
+    text-align: center;
     max-width: var(--max-width);
     margin: 0 auto;
+    gap: 3rem;
 }
 
 .hero-badge {
@@ -171,8 +172,9 @@ a { color: inherit; text-decoration: none; }
 .hero-actions {
     display: flex;
     gap: 1rem;
+    justify-content: center;
     align-items: center;
-    margin-top: 2rem;
+    margin-top: 1.5rem;
 }
 
 .hero-badge {
@@ -232,126 +234,147 @@ a { color: inherit; text-decoration: none; }
     color: var(--paper);
 }
 
+.btn-primary {
+    display: inline-block;
+    background: var(--ink);
+    color: var(--paper);
+    padding: 0.65rem 1.5rem;
+    border-radius: var(--radius-sm);
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    transition: background 0.2s;
+    text-decoration: none;
+}
+
+.btn-primary:hover { background: var(--accent); }
+
 /* Mockup Dashboard Styles */
 .dashboard-mockup {
     background: var(--paper-card);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
-    padding: 1.5rem;
+    padding: 2rem;
     width: 100%;
-    max-width: 400px;
-    box-shadow: 0 8px 40px rgba(0,0,0,0.06);
+    max-width: 520px;
+    box-shadow: 0 12px 48px rgba(0,0,0,0.08);
 }
 
 .mockup-header {
     display: flex;
-    justify-content: flex-end;
-    margin-bottom: 1.5rem;
+    justify-content: flex-start;
+    margin-bottom: 1.25rem;
 }
 
 .mockup-dots {
     display: flex;
-    gap: 0.3rem;
+    gap: 0.4rem;
 }
 
 .dot {
     display: inline-block;
-    width: 12px;
-    height: 12px;
+    width: 10px;
+    height: 10px;
     border-radius: 50%;
 }
 
 .dot.red {
-    background: #ff6b6b;
+    background: #ff8585;
 }
 
 .dot.yellow {
-    background: #ffd166;
+    background: #ffd37a;
 }
 
 .dot.green {
-    background: #51cf66;
+    background: #71db80;
 }
 
 .mockup-stats {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 1rem;
+    gap: 0.85rem;
     margin-bottom: 1.5rem;
 }
 
 .stat-card {
-    background: var(--paper);
-    border: 1px solid var(--border-soft);
+    background: var(--paper-card);
+    border: 1px solid var(--border);
     border-radius: var(--radius-sm);
-    padding: 1rem;
-    text-align: center;
+    padding: 1rem 0.85rem;
+    text-align: left;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.02);
 }
 
 .stat-label {
     font-size: 0.75rem;
     color: var(--ink-muted);
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.35rem;
 }
 
 .stat-value {
-    font-size: 1.25rem;
+    font-size: 1.2rem;
     font-weight: 600;
     color: var(--ink);
     margin-bottom: 0.25rem;
+    letter-spacing: -0.01em;
 }
 
 .stat-change {
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     color: var(--ink-muted);
 }
 
 .stat-change.positive {
-    color: #ff6b6b;
+    color: #e056fd;
 }
 
 .stat-change.remaining {
-    color: #51cf66;
+    color: #20bf6b;
 }
 
 .mockup-chart {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 1rem;
+    background: var(--paper);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--radius-sm);
+    padding: 1.25rem;
 }
 
 .chart-row {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 1rem;
 }
 
 .chart-label {
     font-size: 0.85rem;
+    font-weight: 500;
     color: var(--ink-soft);
-    min-width: 80px;
+    min-width: 60px;
 }
 
 .chart-bar {
     height: 8px;
-    border-radius: 4px;
+    border-radius: 999px;
     flex-grow: 1;
-    max-width: 200px;
+    background: var(--border);
 }
 
 .chart-bar.food {
-    background: #ffd166;
-    width: 80%;
+    background: linear-gradient(90deg, #f39c12 0%, #f39c12 72%, var(--border) 72%);
 }
 
 .chart-bar.travel {
-    background: #66b3ff;
-    width: 60%;
+    background: linear-gradient(90deg, #3498db 0%, #3498db 52%, var(--border) 52%);
 }
 
 .chart-bar.bills {
-    background: #9b59b6;
-    width: 45%;
+    background: linear-gradient(90deg, #9b59b6 0%, #9b59b6 38%, var(--border) 38%);
 }
 
 /* ------------------------------------------------------------------ */
