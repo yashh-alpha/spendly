@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard — Spendly{% endblock %}
+
+{% block content %}
+<section class="dashboard-section">
+    <div class="dashboard-inner">
+        <div class="dashboard-header">
+            <div class="dashboard-greeting">
+                <p class="dashboard-eyebrow">Welcome back</p>
+                <h1 class="dashboard-title">{{ name }}</h1>
+            </div>
+            <a href="{{ url_for('logout') }}" class="btn-ghost">Logout</a>
+        </div>
+
+        <div class="dashboard-cards">
+            <div class="dashboard-card">
+                <span class="dashboard-card-label">Total expenses</span>
+                <span class="dashboard-card-value">—</span>
+            </div>
+            <div class="dashboard-card">
+                <span class="dashboard-card-label">This month</span>
+                <span class="dashboard-card-value">—</span>
+            </div>
+            <div class="dashboard-card">
+                <span class="dashboard-card-label">Categories</span>
+                <span class="dashboard-card-value">7</span>
+            </div>
+        </div>
+
+        <div class="dashboard-empty">
+            <p>Your expense list will appear here once you add your first expense.</p>
+            <a href="{{ url_for('add_expense') }}" class="btn-primary">Add expense</a>
+        </div>
+    </div>
+</section>
+{% endblock %}
