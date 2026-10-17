@@ -71,6 +71,9 @@ def test_register_duplicate_email(client):
         },
     )
 
+    # Logout to clear session from first registration
+    client.get("/logout")
+
     # Second registration with same email
     response = client.post(
         "/register",
@@ -79,6 +82,7 @@ def test_register_duplicate_email(client):
             "email": "duplicate@example.com",
             "password": "password456",
         },
+        follow_redirects=False,
     )
     assert response.status_code == 200
     assert b"Email already registered" in response.data

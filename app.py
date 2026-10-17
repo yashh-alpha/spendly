@@ -33,7 +33,43 @@ def privacy():
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
+    if session.get("user_id"):
+        return redirect(url_for("dashboard"))
+
     error = None
+    if request.method == "POST":
+        name = request.form.get("name", "").strip()
+        email = request.form.get("email", "").strip().lower()
+        password = request.form.get("password", "")
+
+        if not name:
+            error = "Please enter your full name."
+        elif not email or "@" not in email or "." not in email.split("@")[-1]:
+            error = "Please enter a valid email address."
+        elif len(password) < 8:
+            error = "Password must be at least 8 characters."
+        else:
+            db = get_db()
+            existing = db.execute(
+                "SELECT id FROM users WHERE email = ?", (email,)
+            ).fetchone()
+            if existing:
+                error = "Email already registered. Please sign in."
+            else:
+                password_hash = generate_password_hash(password)
+                db.execute(
+                    "INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)",
+                    (name, email, password_hash),
+                )
+                db.commit()
+
+                session["user_id"] = db.execute(
+                    "SELECT id FROM users WHERE email = ?", (email,)
+                ).fetchone()["id"]
+                session["name"] = name
+                return redirect(url_for("dashboard"))
+
+    return render_template("register.html", error=error)
     if request.method == "POST":
         name = request.form.get("name", "").strip()
         email = request.form.get("email", "").strip().lower()
@@ -71,6 +107,9 @@ def register():
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
+    if session.get("user_id"):
+        return redirect(url_for("dashboard"))
+
     error = None
     if request.method == "POST":
         email = request.form.get("email", "").strip().lower()

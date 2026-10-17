@@ -53,3 +53,21 @@ def test_logout(client):
     response = client.get("/logout", follow_redirects=True)
     assert response.status_code == 200
     assert b"Track every rupee" in response.data # Landed on landing page
+
+def test_logged_in_user_redirected_from_login_and_register(client):
+    # Login first
+    client.post("/login", data={
+        "email": "demo@spendly.com",
+        "password": "demo123"
+    }, follow_redirects=True)
+
+    # Try accessing /login
+    response = client.get("/login", follow_redirects=True)
+    assert response.status_code == 200
+    assert b"Dashboard" in response.data
+
+    # Try accessing /register
+    response = client.get("/register", follow_redirects=True)
+    assert response.status_code == 200
+    assert b"Dashboard" in response.data
+
