@@ -12,6 +12,12 @@ def get_db():
         db.execute("PRAGMA foreign_keys = ON")
     return db
 
+def close_db(e=None):
+    db = getattr(g, '_database', None)
+    if db is not None:
+        db.close()
+        g._database = None
+
 def init_db():
     db = get_db()
     db.execute("""
