@@ -23,7 +23,7 @@ def test_login_success(client):
         "password": "demo123"
     }, follow_redirects=True)
     assert response.status_code == 200
-    assert b"Dashboard" in response.data
+    assert b"Member since" in response.data
     assert b"Demo User" in response.data
 
 def test_login_invalid_password(client):
@@ -64,10 +64,10 @@ def test_logged_in_user_redirected_from_login_and_register(client):
     # Try accessing /login
     response = client.get("/login", follow_redirects=True)
     assert response.status_code == 200
-    assert b"Dashboard" in response.data
+    assert b"Member since" in response.data
 
     # Try accessing /register
     response = client.get("/register", follow_redirects=True)
     assert response.status_code == 200
-    assert b"Dashboard" in response.data
+    assert b"Member since" in response.data
 
