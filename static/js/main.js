@@ -1,8 +1,12 @@
 // main.js — students will add JavaScript here as features are built
 
-// Modal functionality for "See how it works"
-
+// Initialize Lucide icons
 document.addEventListener('DOMContentLoaded', function() {
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+
+    // Modal functionality for "See how it works"
     const seeHowItWorksBtn = document.getElementById('seeHowItWorks');
     const modal = document.getElementById('videoModal');
     const modalBackdrop = document.querySelector('.modal-backdrop');
@@ -10,24 +14,30 @@ document.addEventListener('DOMContentLoaded', function() {
     const modalVideo = document.getElementById('modalVideo');
 
     // Open modal on button click
-    seeHowItWorksBtn.addEventListener('click', function() {
-        modal.style.display = 'flex';
-        modalVideo.src = 'https://www.youtube.com/embed/placeholder';
-    });
+    if (seeHowItWorksBtn) {
+        seeHowItWorksBtn.addEventListener('click', function() {
+            modal.style.display = 'flex';
+            modalVideo.src = 'https://www.youtube.com/embed/placeholder';
+        });
+    }
 
     // Close modal on backdrop click
-    modalBackdrop.addEventListener('click', function() {
-        modal.style.display = 'none';
-        modalVideo.pause();
-        modalVideo.src = '';
-    });
+    if (modalBackdrop) {
+        modalBackdrop.addEventListener('click', function() {
+            modal.style.display = 'none';
+            modalVideo.pause();
+            modalVideo.src = '';
+        });
+    }
 
     // Close modal on close button click
-    modalCloseBtn.addEventListener('click', function() {
-        modal.style.display = 'none';
-        modalVideo.pause();
-        modalVideo.src = '';
-    });
+    if (modalCloseBtn) {
+        modalCloseBtn.addEventListener('click', function() {
+            modal.style.display = 'none';
+            modalVideo.pause();
+            modalVideo.src = '';
+        });
+    }
 
     // Close modal when clicking outside of it
     window.addEventListener('click', function(event) {

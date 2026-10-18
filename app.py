@@ -17,7 +17,7 @@ with app.app_context():
 @app.route("/")
 def landing():
     if session.get("user_id"):
-        return redirect(url_for("dashboard"))
+        return redirect(url_for("profile"))
     return render_template("landing.html")
 
 
@@ -64,7 +64,7 @@ def register():
                     "SELECT id FROM users WHERE email = ?", (email,)
                 ).fetchone()["id"]
                 session["name"] = name
-                return redirect(url_for("dashboard"))
+                return redirect(url_for("profile"))
 
     return render_template("register.html", error=error)
 
@@ -91,7 +91,7 @@ def login():
             else:
                 session["user_id"] = user["id"]
                 session["name"] = user["name"]
-                return redirect(url_for("dashboard"))
+                return redirect(url_for("profile"))
 
     return render_template("login.html", error=error)
 
@@ -115,7 +115,54 @@ def dashboard():
 
 @app.route("/profile")
 def profile():
-    return "Profile page — coming in Step 4"
+    if not session.get("user_id"):
+        return redirect(url_for("login"))
+
+    # Hardcoded user data for Step 4 (real DB queries in Step 5)
+    name = session.get("name", "Demo User")
+    email = "demo@spendly.com"
+    avatar_initials = "".join([n[0] for n in name.split()[:2]]).upper()
+    member_since = "October 2026"
+
+    # Hardcoded summary stats
+    summary_stats = {
+        "total_spent": 285.50,
+        "transaction_count": 8,
+        "top_category": "Food"
+    }
+
+    # Hardcoded recent transactions
+    transactions = [
+        {"date": "2026-10-08", "description": "Coffee", "category": "Food", "amount": 15.00},
+        {"date": "2026-10-07", "description": "Gift", "category": "Other", "amount": 20.00},
+        {"date": "2026-10-06", "description": "Groceries", "category": "Shopping", "amount": 40.00},
+        {"date": "2026-10-05", "description": "Movie", "category": "Entertainment", "amount": 30.00},
+        {"date": "2026-10-04", "description": "Pharmacy", "category": "Health", "amount": 50.00},
+    ]
+
+    # Hardcoded category breakdown (for progress bars)
+    categories = [
+        {"name": "Food", "amount": 25.50, "percentage": 9},
+        {"name": "Transport", "amount": 20.00, "percentage": 7},
+        {"name": "Bills", "amount": 100.00, "percentage": 35},
+        {"name": "Health", "amount": 50.00, "percentage": 18},
+        {"name": "Entertainment", "amount": 30.00, "percentage": 11},
+        {"name": "Shopping", "amount": 40.00, "percentage": 14},
+        {"name": "Other", "amount": 20.00, "percentage": 7},
+    ]
+
+    return render_template(
+        "profile.html",
+        user={
+            "name": name,
+            "email": email,
+            "avatar_initials": avatar_initials,
+            "member_since": member_since
+        },
+        summary_stats=summary_stats,
+        transactions=transactions,
+        categories=categories
+    )
 
 
 @app.route("/expenses/add")

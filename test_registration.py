@@ -47,7 +47,7 @@ def test_register_success(client):
     )
     assert response.status_code == 200
     assert b"Aarav Patel" in response.data
-    assert b"Welcome back" in response.data
+    assert b"Member since" in response.data
 
     # Verify user saved in DB
     import database.db
@@ -119,7 +119,7 @@ def test_landing_redirect_when_logged_in(client):
         follow_redirects=True,
     )
 
-    # Visiting landing page should redirect to dashboard
+    # Visiting landing page should redirect to profile
     response = client.get("/", follow_redirects=False)
     assert response.status_code == 302
-    assert response.headers["Location"].endswith("/dashboard")
+    assert response.headers["Location"].endswith("/profile")
