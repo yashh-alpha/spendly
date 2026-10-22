@@ -1,7 +1,28 @@
-from flask import Flask, render_template, request, redirect, url_for, session, abort
+from flask import Flask, render_template, request, redirect, url_for, session, abort, flash
 from werkzeug.security import generate_password_hash, check_password_hash
+from datetime import datetime, date
 from database.db import get_db, init_db, seed_db, close_db
 from database.queries import get_recent_transactions, get_category_breakdown, get_user_by_id, get_summary_stats
+
+
+def _parse_iso_date(s: str) -> date | None:
+    """Parse an ISO date string (YYYY-MM-DD) to a date object.
+    Returns None if the string is invalid or empty.
+    """
+    try:
+        return datetime.strptime(s.strip(), "%Y-%m-%d").date()
+    except ValueError:
+        return None
+
+
+def _months_ago_start(today: date, months: int) -> date:
+    """Return the first day of the month `months` months before `today`."""
+    m = today.month - months
+    y = today.year
+    if m <= 0:
+        m += 12
+        y -= 1
+    return date(y, m, 1)
 
 app = Flask(__name__)
 app.secret_key = "spendly-dev-secret-change-in-production"
@@ -125,21 +146,48 @@ def profile():
     if not session.get("user_id"):
         return redirect(url_for("login"))
 
-    # Real user data from the database
+    # --- Date filter parsing & validation ---
+    raw_from = request.args.get("date_from", "")
+    raw_to = request.args.get("date_to", "")
+
+    date_from = _parse_iso_date(raw_from) if raw_from else None
+    date_to = _parse_iso_date(raw_to) if raw_to else None
+
+    # Validate range
+    date_error = None
+    if date_from and date_to and date_from > date_to:
+        date_from = None
+        date_to = None
+        date_error = "Start date must be before end date."
+        flash(date_error, "error")
+
+    # --- Preset calculations for template ---
+    today = date.today()
+
+    presets = {
+        "this_month": {"label": "This Month", "date_from": _months_ago_start(today, 0), "date_to": today},
+        "last_3_months": {"label": "Last 3 Months", "date_from": _months_ago_start(today, 3), "date_to": today},
+        "last_6_months": {"label": "Last 6 Months", "date_from": _months_ago_start(today, 6), "date_to": today},
+        "all_time": {"label": "All Time", "date_from": None, "date_to": None},
+    }
+
+    # Determine active preset
+    active_preset = "all_time"
+    for key, preset in presets.items():
+        if preset["date_from"] == date_from and preset["date_to"] == date_to:
+            active_preset = key
+            break
+
+    # --- Fetch data with date filters ---
     user = get_user_by_id(session["user_id"])
     name = user["name"]
     email = user["email"]
     avatar_initials = "".join([n[0] for n in name.split()[:2]]).upper()
     member_since = user["member_since"]
 
-    # Real summary stats from the database
-    summary_stats = get_summary_stats(session["user_id"])
-
-    # Recent transactions from the database
-    transactions = get_recent_transactions(session["user_id"])
-
-    # Real category breakdown from the database
-    categories = get_category_breakdown(session["user_id"])
+    summary_stats = get_summary_stats(session["user_id"], date_from, date_to)
+    transactions = get_recent_transactions(session["user_id"], date_from=date_from, date_to=date_to)
+    categories = get_category_breakdown(session["user_id"], date_from, date_to)
 
     return render_template(
         "profile.html",
@@ -151,7 +199,13 @@ def profile():
         },
         summary_stats=summary_stats,
         transactions=transactions,
-        categories=categories
+        categories=categories,
+        # Date filter context
+        date_from=date_from,
+        date_to=date_to,
+        presets=presets,
+        active_preset=active_preset,
+        date_error=date_error,
     )
 
 
