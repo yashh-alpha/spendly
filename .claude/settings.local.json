@@ -4,7 +4,12 @@
       "Bash(./venv/Scripts/python *)",
       "Bash(ls *)",
       "Bash(./venv/Scripts/python.exe *)",
-      "Bash(python *)"
+      "Bash(python *)",
+      "Bash(pkill -f \"python app.py\")",
+      "Bash(curl *)",
+      "Bash(git add *)",
+      "Bash(git checkout *)",
+      "Bash(git pull *)"
     ]
   }
 }
