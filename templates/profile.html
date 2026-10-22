@@ -16,6 +16,58 @@
             </div>
         </div>
 
+        <!-- Date Filter Bar -->
+        <div class="profile-filter-bar">
+            <div class="filter-presets">
+                {% for key, preset in presets.items() %}
+                {% if preset.date_from and preset.date_to %}
+                <a href="{{ url_for('profile', date_from=preset.date_from.strftime('%Y-%m-%d'), date_to=preset.date_to.strftime('%Y-%m-%d')) }}"
+                   class="filter-preset {% if key == active_preset %}active{% endif %}">
+                    {{ preset.label }}
+                </a>
+                {% else %}
+                <a href="{{ url_for('profile') }}"
+                   class="filter-preset {% if key == active_preset %}active{% endif %}">
+                    {{ preset.label }}
+                </a>
+                {% endif %}
+                {% endfor %}
+            </div>
+            <div class="filter-custom">
+                <form method="get" action="{{ url_for('profile') }}" class="filter-form">
+                    <div class="filter-input-group">
+                        <label for="date_from" class="visually-hidden">From date</label>
+                        <input type="date"
+                               id="date_from"
+                               name="date_from"
+                               value="{{ date_from.strftime('%Y-%m-%d') if date_from else '' }}"
+                               class="filter-input">
+                    </div>
+                    <span class="filter-separator">to</span>
+                    <div class="filter-input-group">
+                        <label for="date_to" class="visually-hidden">To date</label>
+                        <input type="date"
+                               id="date_to"
+                               name="date_to"
+                               value="{{ date_to.strftime('%Y-%m-%d') if date_to else '' }}"
+                               class="filter-input">
+                    </div>
+                    <button type="submit" class="btn-filter-apply">Apply</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Flash message for date validation error -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            <div class="profile-flash">
+                {% for category, message in messages %}
+                <div class="flash-message flash-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        {% endwith %}
+
         <!-- Summary Stats Row -->
         <div class="profile-stats-row">
             <div class="dashboard-card">
@@ -50,7 +102,7 @@
                     <tbody>
                         {% for tx in transactions %}
                         <tr>
-                            <td>{{ tx.date }}</td>
+                            <td>{{ tx.date[8:10] + '-' + tx.date[5:7] + '-' + tx.date[:4] if tx.date else '' }}</td>
                             <td>{{ tx.description }}</td>
                             <td>
                                 <span class="profile-category-badge badge-{{ tx.category.lower() }}">{{ tx.category }}</span>

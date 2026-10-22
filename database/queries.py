@@ -6,9 +6,26 @@ No Flask request/session handling lives here — callers pass a ``user_id``.
 """
 
 import sqlite3
-from datetime import datetime
+from datetime import date, datetime
 
 from database.db import DATABASE
+
+
+def _build_date_filter(date_from: date | None, date_to: date | None) -> tuple[str, list]:
+    """Returns (where_sql_fragment, params) for date range filtering.
+
+    Example: date_from=2026-10-01, date_to=2026-10-31 →
+    ("date >= ? AND date <= ?", ["2026-10-01", "2026-10-31"])
+    """
+    clauses = []
+    params = []
+    if date_from:
+        clauses.append("date >= ?")
+        params.append(str(date_from))
+    if date_to:
+        clauses.append("date <= ?")
+        params.append(str(date_to))
+    return (" AND ".join(clauses), params)
 
 
 def _get_connection():
@@ -49,22 +66,33 @@ def get_user_by_id(user_id):
         conn.close()
 
 
-def get_summary_stats(user_id):
+def get_summary_stats(user_id, date_from=None, date_to=None):
     """Return total_spent, transaction_count, and top_category for a user.
 
     If the user has no expenses, returns zeros and ``"—"`` for top_category.
+    Optional date_from and date_to parameters filter by date range (inclusive).
     """
     conn = _get_connection()
     try:
+        where_clauses = ["user_id = ?"]
+        params = [user_id]
+
+        if date_from or date_to:
+            date_where, date_params = _build_date_filter(date_from, date_to)
+            where_clauses.append(date_where)
+            params.extend(date_params)
+
+        where_sql = " AND ".join(where_clauses)
+
         row = conn.execute(
-            """
+            f"""
             SELECT
                 COALESCE(SUM(amount), 0) AS total_spent,
                 COUNT(*)                AS transaction_count
             FROM expenses
-            WHERE user_id = ?
+            WHERE {where_sql}
             """,
-            (user_id,),
+            params,
         ).fetchone()
         total_spent = row["total_spent"]
         transaction_count = row["transaction_count"]
@@ -73,15 +101,15 @@ def get_summary_stats(user_id):
             return {"total_spent": 0, "transaction_count": 0, "top_category": "—"}
 
         top_row = conn.execute(
-            """
+            f"""
             SELECT category
             FROM expenses
-            WHERE user_id = ?
+            WHERE {where_sql}
             GROUP BY category
             ORDER BY SUM(amount) DESC
             LIMIT 1
             """,
-            (user_id,),
+            params,
         ).fetchone()
 
         return {
@@ -93,23 +121,35 @@ def get_summary_stats(user_id):
         conn.close()
 
 
-def get_recent_transactions(user_id, limit=10):
+def get_recent_transactions(user_id, limit=10, date_from=None, date_to=None):
     """Return the user's most recent expenses, newest-first.
 
     Each item is a dict with ``date``, ``description``, ``category``, ``amount``.
     Returns an empty list if the user has no expenses.
+    Optional date_from and date_to parameters filter by date range (inclusive).
     """
     conn = _get_connection()
     try:
+        where_clauses = ["user_id = ?"]
+        params = [user_id]
+
+        if date_from or date_to:
+            date_where, date_params = _build_date_filter(date_from, date_to)
+            where_clauses.append(date_where)
+            params.extend(date_params)
+
+        where_sql = " AND ".join(where_clauses)
+        params.append(limit)
+
         rows = conn.execute(
-            """
+            f"""
             SELECT date, description, category, amount
             FROM expenses
-            WHERE user_id = ?
+            WHERE {where_sql}
             ORDER BY date DESC
             LIMIT ?
             """,
-            (user_id, limit),
+            params,
         ).fetchall()
 
         return [
@@ -125,7 +165,7 @@ def get_recent_transactions(user_id, limit=10):
         conn.close()
 
 
-def get_category_breakdown(user_id):
+def get_category_breakdown(user_id, date_from=None, date_to=None):
     """Return per-category totals for a user, ordered by amount descending.
 
     Each item is a dict with ``name``, ``amount``, and ``pct`` (integer
@@ -133,18 +173,29 @@ def get_category_breakdown(user_id):
     largest category absorbs any remainder so the values sum to 100.
 
     Returns an empty list if the user has no expenses.
+    Optional date_from and date_to parameters filter by date range (inclusive).
     """
     conn = _get_connection()
     try:
+        where_clauses = ["user_id = ?"]
+        params = [user_id]
+
+        if date_from or date_to:
+            date_where, date_params = _build_date_filter(date_from, date_to)
+            where_clauses.append(date_where)
+            params.extend(date_params)
+
+        where_sql = " AND ".join(where_clauses)
+
         rows = conn.execute(
-            """
+            f"""
             SELECT category, SUM(amount) AS amount
             FROM expenses
-            WHERE user_id = ?
+            WHERE {where_sql}
             GROUP BY category
             ORDER BY amount DESC
             """,
-            (user_id,),
+            params,
         ).fetchall()
 
         if not rows:
