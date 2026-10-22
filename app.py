@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, session, abort
 from werkzeug.security import generate_password_hash, check_password_hash
 from database.db import get_db, init_db, seed_db, close_db
+from database.queries import get_recent_transactions, get_category_breakdown, get_user_by_id, get_summary_stats
 
 app = Flask(__name__)
 app.secret_key = "spendly-dev-secret-change-in-production"
@@ -124,38 +125,21 @@ def profile():
     if not session.get("user_id"):
         return redirect(url_for("login"))
 
-    # Hardcoded user data for Step 4 (real DB queries in Step 5)
-    name = session.get("name", "Demo User")
-    email = "demo@spendly.com"
+    # Real user data from the database
+    user = get_user_by_id(session["user_id"])
+    name = user["name"]
+    email = user["email"]
     avatar_initials = "".join([n[0] for n in name.split()[:2]]).upper()
-    member_since = "October 2026"
+    member_since = user["member_since"]
 
-    # Hardcoded summary stats
-    summary_stats = {
-        "total_spent": 285.50,
-        "transaction_count": 8,
-        "top_category": "Food"
-    }
+    # Real summary stats from the database
+    summary_stats = get_summary_stats(session["user_id"])
 
-    # Hardcoded recent transactions
-    transactions = [
-        {"date": "2026-10-08", "description": "Coffee", "category": "Food", "amount": 15.00},
-        {"date": "2026-10-07", "description": "Gift", "category": "Other", "amount": 20.00},
-        {"date": "2026-10-06", "description": "Groceries", "category": "Shopping", "amount": 40.00},
-        {"date": "2026-10-05", "description": "Movie", "category": "Entertainment", "amount": 30.00},
-        {"date": "2026-10-04", "description": "Pharmacy", "category": "Health", "amount": 50.00},
-    ]
+    # Recent transactions from the database
+    transactions = get_recent_transactions(session["user_id"])
 
-    # Hardcoded category breakdown (for progress bars)
-    categories = [
-        {"name": "Food", "amount": 25.50, "percentage": 9},
-        {"name": "Transport", "amount": 20.00, "percentage": 7},
-        {"name": "Bills", "amount": 100.00, "percentage": 35},
-        {"name": "Health", "amount": 50.00, "percentage": 18},
-        {"name": "Entertainment", "amount": 30.00, "percentage": 11},
-        {"name": "Shopping", "amount": 40.00, "percentage": 14},
-        {"name": "Other", "amount": 20.00, "percentage": 7},
-    ]
+    # Real category breakdown from the database
+    categories = get_category_breakdown(session["user_id"])
 
     return render_template(
         "profile.html",
