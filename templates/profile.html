@@ -75,7 +75,7 @@
                         <span class="profile-category-badge badge-{{ cat.name.lower() }}">{{ cat.name }}</span>
                     </div>
                     <div class="profile-breakdown-progress">
-                        <div class="profile-progress-bar" style="width: {{ cat.percentage }}%"></div>
+                        <div class="profile-progress-bar" style="width: {{ cat.pct }}%"></div>
                     </div>
                     <div class="profile-breakdown-amount">₹{{ "%.2f"|format(cat.amount) }}</div>
                 </div>
