@@ -1,4 +1,4 @@
-"""Pure query helpers for the Spendly profile page.
+"""Pure query helpers for the Spendly expense tracker.
 
 Each function opens its own SQLite connection, executes a parameterised query,
 closes the connection, and returns plain Python data (dicts / lists).
@@ -217,5 +217,33 @@ def get_category_breakdown(user_id, date_from=None, date_to=None):
             breakdown[0]["pct"] += diff
 
         return breakdown
+    finally:
+        conn.close()
+
+
+def insert_expense(user_id, amount, category, date, description=None):
+    """Insert a new expense for the given user.
+
+    Args:
+        user_id: The user's database id.
+        amount: Positive dollar amount (float).
+        category: Must be one of: Food, Transport, Bills, Health,
+            Entertainment, Shopping, Other.
+        date: ISO date string YYYY-MM-DD.
+        description: Optional textual description; stored as NULL if blank.
+
+    Returns:
+        The newly inserted expense row id (integer).
+    """
+    conn = _get_connection()
+    try:
+        description = description.strip() if description and description.strip() else None
+        cursor = conn.execute(
+            "INSERT INTO expenses (user_id, amount, category, date, description) "
+            "VALUES (?, ?, ?, ?, ?)",
+            (user_id, amount, category, date, description),
+        )
+        conn.commit()
+        return cursor.lastrowid
     finally:
         conn.close()

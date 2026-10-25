@@ -10,7 +10,8 @@
       "Bash(git add *)",
       "Bash(git checkout *)",
       "Bash(git pull *)",
-      "Skill(create-spec)"
+      "Skill(create-spec)",
+      "Skill(code-review-features)"
     ]
   }
 }

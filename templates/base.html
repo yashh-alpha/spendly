@@ -23,6 +23,7 @@
                     <span class="nav-greeting">Hi, {{ session.get("name", "User") }}</span>
                     <a href="{{ url_for('analytics') }}">Advanced Analytics</a>
                     <a href="{{ url_for('logout') }}" class="nav-cta">Logout</a>
+                    <a href="{{ url_for('add_expense') }}" class="nav-cta">Add Expense</a>
                 {% else %}
                     <a href="{{ url_for('login') }}">Sign in</a>
                     <a href="{{ url_for('register') }}" class="nav-cta">Get started</a>

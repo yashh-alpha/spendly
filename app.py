@@ -1,8 +1,13 @@
 from flask import Flask, render_template, request, redirect, url_for, session, abort, flash
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, date
+import os
 from database.db import get_db, init_db, seed_db, close_db
-from database.queries import get_recent_transactions, get_category_breakdown, get_user_by_id, get_summary_stats
+from database.queries import get_recent_transactions, get_category_breakdown, get_user_by_id, get_summary_stats, insert_expense
+
+
+VALID_CATEGORIES = ["Food", "Transport", "Bills", "Health", "Entertainment", "Shopping", "Other"]
+MAX_DESCRIPTION_LENGTH = 200
 
 
 def _parse_iso_date(s: str) -> date | None:
@@ -24,8 +29,22 @@ def _months_ago_start(today: date, months: int) -> date:
         y -= 1
     return date(y, m, 1)
 
+
+def _render_add_expense_form(amount="", category="", date_str="", description="", error=None):
+    """Helper to render the add expense form with preserved values and optional error."""
+    if error:
+        flash(error, "error")
+    return render_template(
+        "add_expense.html",
+        amount=amount,
+        category=category,
+        date=date_str,
+        description=description,
+        max_date=date.today().strftime("%Y-%m-%d"),
+    )
+
 app = Flask(__name__)
-app.secret_key = "spendly-dev-secret-change-in-production"
+app.secret_key = os.environ.get("SECRET_KEY", "spendly-dev-secret-change-in-production")
 app.teardown_appcontext(close_db)
 
 with app.app_context():
@@ -216,9 +235,85 @@ def analytics():
     return render_template("analytics.html")
 
 
-@app.route("/expenses/add")
+@app.route("/expenses/add", methods=["GET", "POST"])
 def add_expense():
-    return "Add expense — coming in Step 7"
+    if not session.get("user_id"):
+        return redirect(url_for("login"))
+
+    if request.method == "POST":
+        # --- Parse and validate form fields ---
+        raw_amount = request.form.get("amount", "").strip()
+        raw_category = request.form.get("category", "").strip()
+        raw_date = request.form.get("date", "").strip()
+        raw_description = request.form.get("description", "").strip()
+
+        # Validate amount: must be a positive number
+        try:
+            amount = float(raw_amount)
+            if amount <= 0:
+                raise ValueError("Amount must be greater than 0")
+        except (ValueError, TypeError):
+            return _render_add_expense_form(
+                amount=raw_amount,
+                category=raw_category,
+                date_str=raw_date,
+                description=raw_description,
+                error="Amount must be a positive number greater than 0.",
+            )
+
+        # Validate category: must be one of the 7 fixed options
+        if raw_category not in VALID_CATEGORIES:
+            return _render_add_expense_form(
+                amount=raw_amount,
+                category=raw_category,
+                date_str=raw_date,
+                description=raw_description,
+                error=f"Category must be one of: {', '.join(VALID_CATEGORIES)}.",
+            )
+
+        # Validate date: must be a valid YYYY-MM-DD date (not a future date)
+        try:
+            parsed_date = datetime.strptime(raw_date, "%Y-%m-%d").date()
+            if parsed_date > date.today():
+                return _render_add_expense_form(
+                    amount=raw_amount,
+                    category=raw_category,
+                    date_str=raw_date,
+                    description=raw_description,
+                    error="Date cannot be in the future.",
+                )
+        except (ValueError, TypeError):
+            return _render_add_expense_form(
+                amount=raw_amount,
+                category=raw_category,
+                date_str=raw_date,
+                description=raw_description,
+                error="Date must be a valid date in YYYY-MM-DD format.",
+            )
+
+        # Validate description length (server-side)
+        if len(raw_description) > MAX_DESCRIPTION_LENGTH:
+            return _render_add_expense_form(
+                amount=raw_amount,
+                category=raw_category,
+                date_str=raw_date,
+                description=raw_description,
+                error=f"Description too long (max {MAX_DESCRIPTION_LENGTH} characters).",
+            )
+
+        # --- Insert the expense ---
+        insert_expense(
+            user_id=session["user_id"],
+            amount=amount,
+            category=raw_category,
+            date=raw_date,
+            description=raw_description if raw_description else None,
+        )
+        flash("Expense added successfully!", "success")
+        return redirect(url_for("profile"))
+
+    # --- GET request: render the form ---
+    return _render_add_expense_form(date_str=date.today().strftime("%Y-%m-%d"))
 
 
 @app.route("/expenses/<int:id>/edit")
@@ -232,4 +327,5 @@ def delete_expense(id):
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5001)
+    debug_mode = os.environ.get("FLASK_DEBUG", "false").lower() == "true"
+    app.run(debug=debug_mode, port=5001)
