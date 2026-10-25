@@ -84,54 +84,70 @@
             </div>
         </div>
 
-        <!-- Transaction History -->
-        <div class="profile-table-section">
-            <div class="profile-section-header">
-                <h2 class="profile-section-title">Transaction History</h2>
-            </div>
-            <div class="profile-table-wrapper">
-                <table class="profile-table">
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Description</th>
-                            <th>Category</th>
-                            <th class="text-right">Amount</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for tx in transactions %}
-                        <tr>
-                            <td>{{ tx.date[8:10] + '-' + tx.date[5:7] + '-' + tx.date[:4] if tx.date else '' }}</td>
-                            <td>{{ tx.description }}</td>
-                            <td>
-                                <span class="profile-category-badge badge-{{ tx.category.lower() }}">{{ tx.category }}</span>
-                            </td>
-                            <td class="text-right">₹{{ "%.2f"|format(tx.amount) }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Category Breakdown -->
-        <div class="profile-breakdown-section">
-            <div class="profile-section-header">
-                <h2 class="profile-section-title">Category Breakdown</h2>
-            </div>
-            <div class="profile-breakdown">
-                {% for cat in categories %}
-                <div class="profile-breakdown-row">
-                    <div class="profile-breakdown-label">
-                        <span class="profile-category-badge badge-{{ cat.name.lower() }}">{{ cat.name }}</span>
-                    </div>
-                    <div class="profile-breakdown-progress">
-                        <div class="profile-progress-bar" style="width: {{ cat.pct }}%"></div>
-                    </div>
-                    <div class="profile-breakdown-amount">₹{{ "%.2f"|format(cat.amount) }}</div>
+        <!-- Transaction History + Category Breakdown -->
+        <div class="profile-split">
+            <div class="profile-table-section">
+                <div class="profile-section-header">
+                    <h2 class="profile-section-title">Transaction History</h2>
+                <a href="{{ url_for('add_expense') }}" class="btn-add-expense">Add Expense</a>
                 </div>
-                {% endfor %}
+                <div class="profile-table-wrapper">
+                    <table class="profile-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Description</th>
+                                <th>Category</th>
+                                <th class="text-right">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for tx in transactions %}
+                            <tr class="tx-row{% if not loop.first and loop.index0 >= 5 %} tx-row-hidden{% endif %}">
+                                <td>{{ tx.date[8:10] + '-' + tx.date[5:7] + '-' + tx.date[:4] if tx.date else '' }}</td>
+                                <td>{{ tx.description }}</td>
+                                <td>
+                                    <span class="profile-category-badge badge-{{ tx.category.lower() }}">{{ tx.category }}</span>
+                                </td>
+                                <td class="text-right">₹{{ "%.2f"|format(tx.amount) }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% if transactions|length > 5 %}
+                <div class="profile-table-footer">
+                    <button type="button" class="btn-show-more" id="txShowMoreBtn">
+                        Show more
+                    </button>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="profile-breakdown-section">
+                <div class="profile-section-header">
+                    <h2 class="profile-section-title">Category Breakdown</h2>
+                </div>
+                <div class="profile-breakdown">
+                    {% for cat in categories %}
+                    <div class="profile-breakdown-row{% if loop.index0 >= 5 %} cat-row-hidden{% endif %}">
+                        <div class="profile-breakdown-label">
+                            <span class="profile-category-badge badge-{{ cat.name.lower() }}">{{ cat.name }}</span>
+                        </div>
+                        <div class="profile-breakdown-progress">
+                            <div class="profile-progress-bar" style="width: {{ cat.pct }}%"></div>
+                        </div>
+                        <div class="profile-breakdown-amount">₹{{ "%.2f"|format(cat.amount) }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% if categories|length > 5 %}
+                <div class="profile-breakdown-footer">
+                    <button type="button" class="btn-show-more" id="catShowMoreBtn">
+                        Show more
+                    </button>
+                </div>
+                {% endif %}
             </div>
         </div>
 
