@@ -45,32 +45,35 @@ def init_db():
 
 def seed_db():
     db = get_db()
-    # Check if users table already has data
-    user = db.execute("SELECT id FROM users LIMIT 1").fetchone()
-    if user:
-        return
+    # Check if demo user already exists
+    demo_user = db.execute("SELECT id FROM users WHERE email = ?", ("demo@spendly.com",)).fetchone()
+    if not demo_user:
+        # Insert demo user
+        hashed_password = generate_password_hash('demo123')
+        cursor = db.execute(
+            "INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)",
+            ("Demo User", "demo@spendly.com", hashed_password)
+        )
+        user_id = cursor.lastrowid
+    else:
+        user_id = demo_user["id"]
 
-    # Insert demo user
-    hashed_password = generate_password_hash('demo123')
-    cursor = db.execute(
-        "INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)",
-        ("Demo User", "demo@spendly.com", hashed_password)
-    )
-    user_id = cursor.lastrowid
-
-    # Insert 8 sample expenses
-    expenses = [
-        (user_id, 10.5, "Food", "2026-10-01", "Lunch"),
-        (user_id, 20.0, "Transport", "2026-10-02", "Taxi"),
-        (user_id, 100.0, "Bills", "2026-10-03", "Internet"),
-        (user_id, 50.0, "Health", "2026-10-04", "Pharmacy"),
-        (user_id, 30.0, "Entertainment", "2026-10-05", "Movie"),
-        (user_id, 40.0, "Shopping", "2026-10-06", "Groceries"),
-        (user_id, 20.0, "Other", "2026-10-07", "Gift"),
-        (user_id, 15.0, "Food", "2026-10-08", "Coffee")
-    ]
-    db.executemany("""
-        INSERT INTO expenses (user_id, amount, category, date, description)
-        VALUES (?, ?, ?, ?, ?)
-    """, expenses)
-    db.commit()
+    # Check if expenses already exist for demo user
+    existing_expenses = db.execute("SELECT COUNT(*) as cnt FROM expenses WHERE user_id = ?", (user_id,)).fetchone()
+    if existing_expenses["cnt"] == 0:
+        # Insert 8 sample expenses
+        expenses = [
+            (user_id, 10.5, "Food", "2026-10-01", "Lunch"),
+            (user_id, 20.0, "Transport", "2026-10-02", "Taxi"),
+            (user_id, 100.0, "Bills", "2026-10-03", "Internet"),
+            (user_id, 50.0, "Health", "2026-10-04", "Pharmacy"),
+            (user_id, 30.0, "Entertainment", "2026-10-05", "Movie"),
+            (user_id, 40.0, "Shopping", "2026-10-06", "Groceries"),
+            (user_id, 20.0, "Other", "2026-10-07", "Gift"),
+            (user_id, 15.0, "Food", "2026-10-08", "Coffee")
+        ]
+        db.executemany("""
+            INSERT INTO expenses (user_id, amount, category, date, description)
+            VALUES (?, ?, ?, ?, ?)
+        """, expenses)
+        db.commit()
