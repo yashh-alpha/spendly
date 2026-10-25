@@ -47,4 +47,26 @@ document.addEventListener('DOMContentLoaded', function() {
             modalVideo.src = '';
         }
     });
+
+    // "Show more" / "Show less" toggle helper
+    function setupShowMore(buttonId, hiddenSelector) {
+        const btn = document.getElementById(buttonId);
+        if (!btn) return;
+        const hiddenRows = document.querySelectorAll(hiddenSelector);
+        if (hiddenRows.length === 0) return;
+
+        btn.addEventListener('click', function () {
+            const isHidden = hiddenRows[0].classList.contains(hiddenSelector.replace('.', ''));
+            hiddenRows.forEach(function (row) {
+                row.classList.toggle(hiddenSelector.replace('.', ''), !isHidden);
+            });
+            btn.textContent = isHidden ? 'Show less' : 'Show more';
+        });
+    }
+
+    // Transaction history table
+    setupShowMore('txShowMoreBtn', '.tx-row-hidden');
+
+    // Category breakdown list
+    setupShowMore('catShowMoreBtn', '.cat-row-hidden');
 });

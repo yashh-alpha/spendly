@@ -21,7 +21,7 @@
             <div class="nav-links">
                 {% if session.get("user_id") %}
                     <span class="nav-greeting">Hi, {{ session.get("name", "User") }}</span>
-                    <a href="{{ url_for('profile') }}">Profile</a>
+                    <a href="{{ url_for('analytics') }}">Advanced Analytics</a>
                     <a href="{{ url_for('logout') }}" class="nav-cta">Logout</a>
                 {% else %}
                     <a href="{{ url_for('login') }}">Sign in</a>
