@@ -1399,6 +1399,16 @@ a { color: inherit; text-decoration: none; }
     background: var(--accent);
 }
 
+.btn-action {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.btn-action:hover {
+    text-decoration: underline;
+}
+
 /* Flash messages */
 .profile-flash {
     margin-bottom: 1rem;

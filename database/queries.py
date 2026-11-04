@@ -124,7 +124,7 @@ def get_summary_stats(user_id, date_from=None, date_to=None):
 def get_recent_transactions(user_id, limit=10, date_from=None, date_to=None):
     """Return the user's most recent expenses, newest-first.
 
-    Each item is a dict with ``date``, ``description``, ``category``, ``amount``.
+    Each item is a dict with ``id``, ``date``, ``description``, ``category``, ``amount``.
     Returns an empty list if the user has no expenses.
     Optional date_from and date_to parameters filter by date range (inclusive).
     """
@@ -143,7 +143,7 @@ def get_recent_transactions(user_id, limit=10, date_from=None, date_to=None):
 
         rows = conn.execute(
             f"""
-            SELECT date, description, category, amount
+            SELECT id, date, description, category, amount
             FROM expenses
             WHERE {where_sql}
             ORDER BY date DESC
@@ -154,6 +154,7 @@ def get_recent_transactions(user_id, limit=10, date_from=None, date_to=None):
 
         return [
             {
+                "id": row["id"],
                 "date": row["date"],
                 "description": row["description"],
                 "category": row["category"],
@@ -217,6 +218,66 @@ def get_category_breakdown(user_id, date_from=None, date_to=None):
             breakdown[0]["pct"] += diff
 
         return breakdown
+    finally:
+        conn.close()
+
+
+def get_expense_by_id(user_id, expense_id):
+    """Fetch a single expense by id, scoped to the given user.
+
+    Args:
+        user_id: The user's database id (for ownership check).
+        expense_id: The expense id to fetch.
+
+    Returns:
+        A dict with ``id``, ``amount``, ``category``, ``date``, ``description``
+        if found and owned by the user; ``None`` otherwise.
+    """
+    conn = _get_connection()
+    try:
+        row = conn.execute(
+            "SELECT id, amount, category, date, description FROM expenses WHERE id = ? AND user_id = ?",
+            (expense_id, user_id),
+        ).fetchone()
+
+        if row is None:
+            return None
+
+        return {
+            "id": row["id"],
+            "amount": row["amount"],
+            "category": row["category"],
+            "date": row["date"],
+            "description": row["description"],
+        }
+    finally:
+        conn.close()
+
+
+def update_expense(user_id, expense_id, amount, category, date, description=None):
+    """Update an existing expense, scoped to the given user for safety.
+
+    Args:
+        user_id: The user's database id (for ownership check).
+        expense_id: The expense id to update.
+        amount: Positive dollar amount (float).
+        category: Must be one of: Food, Transport, Bills, Health,
+            Entertainment, Shopping, Other.
+        date: ISO date string YYYY-MM-DD.
+        description: Optional textual description; stored as NULL if blank.
+
+    Returns:
+        None (raises no exception if not found or not owned; safe no-op).
+    """
+    conn = _get_connection()
+    try:
+        description_clean = description.strip() if description and description.strip() else None
+        conn.execute(
+            "UPDATE expenses SET amount = ?, category = ?, date = ?, description = ? "
+            "WHERE id = ? AND user_id = ?",
+            (amount, category, date, description_clean, expense_id, user_id),
+        )
+        conn.commit()
     finally:
         conn.close()
 
