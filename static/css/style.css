@@ -1409,6 +1409,23 @@ a { color: inherit; text-decoration: none; }
     text-decoration: underline;
 }
 
+.btn-delete {
+    background: transparent;
+    border: none;
+    padding: 0;
+    color: var(--danger);
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    margin-left: 1rem;
+    transition: color 0.2s;
+}
+
+.btn-delete:hover {
+    text-decoration: underline;
+}
+
 /* Flash messages */
 .profile-flash {
     margin-bottom: 1rem;

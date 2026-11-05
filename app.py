@@ -3,7 +3,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, date
 import os
 from database.db import get_db, init_db, seed_db, close_db
-from database.queries import get_recent_transactions, get_category_breakdown, get_user_by_id, get_summary_stats, insert_expense, get_expense_by_id, update_expense
+from database.queries import get_recent_transactions, get_category_breakdown, get_user_by_id, get_summary_stats, insert_expense, get_expense_by_id, update_expense, delete_expense
 
 
 VALID_CATEGORIES = ["Food", "Transport", "Bills", "Health", "Entertainment", "Shopping", "Other"]
@@ -414,9 +414,18 @@ def edit_expense(id):
     return redirect(url_for("profile"))
 
 
-@app.route("/expenses/<int:id>/delete")
-def delete_expense(id):
-    return "Delete expense — coming in Step 9"
+@app.route("/expenses/<int:id>/delete", methods=["POST"])
+def delete_expense_route(id):
+    if not session.get("user_id"):
+        return redirect(url_for("login"))
+
+    # Ownership check
+    expense = get_expense_by_id(session["user_id"], id)
+    if not expense:
+        abort(404)
+
+    delete_expense(id, session["user_id"])
+    return redirect(url_for("profile"))
 
 
 if __name__ == "__main__":
