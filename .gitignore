@@ -18,12 +18,15 @@ expense_tracker.db
 # Cookies/sessions
 .cookies*.txt
 cookies.txt
+
 # IDE/Editor
-.claude/
 .memory/
 .vscode/
 .idea/
 
-# Test scripts (root level)
+# Test scripts (root level only)
 test_*.py
 seed_*.py
+
+# Don't ignore tests in tests/ directory
+!tests/*.py

@@ -282,6 +282,27 @@ def update_expense(user_id, expense_id, amount, category, date, description=None
         conn.close()
 
 
+def delete_expense(expense_id, user_id):
+    """Delete an expense by id, scoped to the given user for safety.
+
+    Args:
+        expense_id: The expense id to delete.
+        user_id: The user's database id (for ownership check).
+
+    Returns:
+        None (raises no exception if not found or not owned; safe no-op).
+    """
+    conn = _get_connection()
+    try:
+        conn.execute(
+            "DELETE FROM expenses WHERE id = ? AND user_id = ?",
+            (expense_id, user_id),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+
 def insert_expense(user_id, amount, category, date, description=None):
     """Insert a new expense for the given user.
 
