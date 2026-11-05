@@ -13,5 +13,8 @@
       "Skill(create-spec)",
       "Skill(code-review-features)"
     ]
+  },
+  "enabledPlugins": {
+    "railway@railway-skills": true
   }
 }
