@@ -1,7 +1,5 @@
 # Spendly
 
-[![GitHub](https://img.shields.io/badge/GitHub-yashh-alpha/spendly-blue?logo=github)](https://github.com/yashh-alpha/spendly)
-
 A clean, lightweight personal expense tracker built with **Flask** and **SQLite**.
 Track your spending, categorize your expenses, and see where your money goes at a glance.
 
