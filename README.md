@@ -162,7 +162,7 @@ MIT
 This project is configured for deployment on **Railway**. Once deployed, you can access the live app at:
 
 ```
-https://spendly.up.railway.app
+https://expense-tracker-production-fae6.up.railway.app/
 ```
 
 Or check the Railway dashboard for the exact URL after deployment.
