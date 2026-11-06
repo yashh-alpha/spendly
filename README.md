@@ -1,5 +1,7 @@
 # Spendly
 
+[![GitHub](https://img.shields.io/badge/GitHub-yashh-alpha/spendly-blue?logo=github)](https://github.com/yashh-alpha/spendly)
+
 A clean, lightweight personal expense tracker built with **Flask** and **SQLite**.
 Track your spending, categorize your expenses, and see where your money goes at a glance.
 
@@ -154,3 +156,27 @@ Expenses must fall into one of these seven categories:
 ## 📄 License
 
 MIT
+
+---
+
+## 🔗 Live Demo
+
+This project is configured for deployment on **Railway**. Once deployed, you can access the live app at:
+
+```
+https://spendly.up.railway.app
+```
+
+Or check the Railway dashboard for the exact URL after deployment.
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit issues, fork the repository, and create pull requests. For major changes, please open an issue first to discuss what you'd like to change.
+
+---
+
+## 📧 Contact
+
+Built by **yashh-alpha** — [GitHub](https://github.com/yashh-alpha/spendly)
